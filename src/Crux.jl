@@ -22,7 +22,7 @@ module Crux
     import Images: save
     using Statistics
     using StatsBase
-    using Base.Iterators: partition
+    using Base.Iterators: partition, flatten
     using Dates
 
     extra_functions = Dict()
