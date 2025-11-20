@@ -14,6 +14,7 @@ module Crux
     using Zygote
     import Zygote: ignore_derivatives, Zeros
     using Flux.Optimise: train!
+    using Flux: flatten
     using CUDA
     using LinearAlgebra
     using ValueHistories
@@ -22,7 +23,7 @@ module Crux
     import Images: save
     using Statistics
     using StatsBase
-    using Base.Iterators: partition, flatten
+    using Base.Iterators: partition
     using Dates
 
     extra_functions = Dict()
