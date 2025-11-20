@@ -19,10 +19,11 @@ module Crux
     using ValueHistories
     using Plots
     using ColorSchemes
+    using MLUtils: flatten
     import Images: save
     using Statistics
     using StatsBase
-    using Base.Iterators: partition, flatten
+    using Base.Iterators: partition #, flatten
     using Dates
 
     extra_functions = Dict()
