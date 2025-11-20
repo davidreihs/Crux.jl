@@ -21,6 +21,7 @@ function OffPolicyGAIL(;
         𝒟_demo, 
         𝒟_ndas::Array{ExperienceBuffer} = ExperienceBuffer[], 
         normalize_demo::Bool=true, 
+        add_noise::Bool=false,
         D::ContinuousNetwork, 
         solver=SAC, 
         d_opt::NamedTuple=(epochs=5,), 
@@ -35,6 +36,8 @@ function OffPolicyGAIL(;
     λ_nda = Float32(-1 / N_nda)
     N_datasets = 2 + N_nda
     
+    println("λnda: $(λ_nda), N_datasets:$(N_datasets), N_nda:$(N_nda)")
+
     # Normalize and/or change device of expert and NDA data
     dev = device(π)
     A = action_space(π)
@@ -81,8 +84,11 @@ function OffPolicyGAIL(;
             x = cat(flatten(𝒟_full[:s]), 𝒟_full[:a], dims=1)
             
             # Add some noise (Optional)
-            # x .+= Float32.(rand(Normal(0, 0.2f0), size(x))) |> dev
-            
+            if add_noise
+                x .+= Float32.(rand(Normal(0, 0.1f0), size(x))) |> dev
+            else
+                x = x |> dev
+            end
             # Create labels
             y_demo = Flux.onehotbatch(ones(Int, B), 1:N_datasets)
             # y_demo_π = Flux.onehotbatch(2*ones(Int, B), 1:N_datasets)
@@ -92,7 +98,7 @@ function OffPolicyGAIL(;
             
             y = cat(y_demo, y_π, y_ndas..., dims=2) |> dev
             
-            
+            println("size y:$(size(y)), size D(x):$(size(D(x)))")
             # println(gradient_penalty(D, x_demo, x_π))
             # + 10f0 * gradient_penalty(D, x_demo, x_π)
             train!(D, (;kwargs...) -> Flux.Losses.logitcrossentropy(D(x), y), d_opt, info=info)
